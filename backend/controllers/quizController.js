@@ -90,23 +90,26 @@ const joinQuizByCode = async (req, res) => {
   try {
     const { code } = req.body;
 
-    // find by accessCode instead of code
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
+    }
+
     const quiz = await Quiz.findOne({ accessCode: code });
 
     if (!quiz) {
       return res.status(404).json({ message: "Quiz not found" });
     }
 
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ message: "Unauthorized: User not found" });
+    if (quiz.isPublic) {
+      return res.status(400).json({ message: "This is a public quiz, no access code needed." });
     }
 
-    const alreadyJoined = quiz.participants?.some(
+    const alreadyJoined = quiz.participants.some(
       (p) => p.user.toString() === req.user._id.toString()
     );
 
     if (alreadyJoined) {
-      return res.status(400).json({ message: "Already joined" });
+      return res.status(400).json({ message: "You have already joined this quiz." });
     }
 
     quiz.participants.push({ user: req.user._id });
@@ -384,6 +387,52 @@ const regenerateAccessCode = async (req, res) => {
   }
 };
 
+// Get global leaderboard
+const getGlobalLeaderboard = async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    
+    const leaderboard = await User.find({}, 'username stats.totalScore stats.totalQuizzesAttempted stats.averageScore')
+      .sort({ 'stats.totalScore': -1 })
+      .limit(parseInt(limit));
+    
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Get global leaderboard error:', error);
+    res.status(500).json({ message: 'Server error fetching leaderboard' });
+  }
+};
+
+// Get quiz-specific leaderboard
+const getQuizLeaderboard = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 10 } = req.query;
+    
+    const quiz = await Quiz.findById(id);
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found' });
+    }
+    
+    const attempts = await Attempt.find({ quizId: id, status: 'completed' })
+      .populate('userId', 'username')
+      .sort({ score: -1, completedAt: 1 })
+      .limit(parseInt(limit));
+    
+    const leaderboard = attempts.map(attempt => ({
+      username: attempt.userId.username,
+      score: attempt.score,
+      percentage: attempt.percentage,
+      completedAt: attempt.completedAt
+    }));
+    
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Get quiz leaderboard error:', error);
+    res.status(500).json({ message: 'Server error fetching quiz leaderboard' });
+  }
+};
+
 module.exports = {
   createQuiz,
   getPublicQuizzes,
@@ -394,5 +443,8 @@ module.exports = {
   rateQuiz,
   getQuizAnalytics,
   regenerateAccessCode,
-  joinQuizByCode
+  joinQuizByCode,
+  getGlobalLeaderboard,
+  getQuizLeaderboard
 };
+

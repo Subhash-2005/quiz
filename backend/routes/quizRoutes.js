@@ -11,7 +11,9 @@ const {
   rateQuiz,
   getQuizAnalytics,
   regenerateAccessCode,
-  joinQuizByCode
+  joinQuizByCode,
+  getGlobalLeaderboard,
+  getQuizLeaderboard
 } = require('../controllers/quizController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
@@ -52,12 +54,14 @@ const quizValidation = [
 router.post('/', authMiddleware, quizValidation, createQuiz);
 router.get('/public', getPublicQuizzes);
 router.get('/user', authMiddleware, getUserQuizzes);
+router.get('/leaderboard/global', getGlobalLeaderboard);
+router.get('/:id/leaderboard', getQuizLeaderboard);
 router.get('/:id', authMiddleware, getQuiz);
 router.put('/:id', authMiddleware, updateQuiz);
 router.delete('/:id', authMiddleware, deleteQuiz);
 router.post('/:id/rate', authMiddleware, rateQuiz);
 router.get('/:id/analytics', authMiddleware, getQuizAnalytics);
 router.patch('/:id/regenerate-code', authMiddleware, regenerateAccessCode);
-router.post('/join-by-code',  joinQuizByCode);
+router.post('/join-by-code', authMiddleware, joinQuizByCode);
 
 module.exports = router;

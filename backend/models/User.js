@@ -56,6 +56,10 @@ const userSchema = new mongoose.Schema({
     totalPoints: {
       type: Number,
       default: 0
+    },
+    totalScore: {
+      type: Number,
+      default: 0
     }
   },
   isAdmin: {

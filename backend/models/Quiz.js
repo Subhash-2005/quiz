@@ -110,6 +110,16 @@ const quizSchema = new mongoose.Schema({
   joinedUsers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  }],
+  participants: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    joinedAt: {
+      type: Date,
+      default: Date.now
+    }
   }]
 }, {
   timestamps: true
