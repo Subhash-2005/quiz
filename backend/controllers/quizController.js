@@ -188,7 +188,8 @@ const getQuiz = async (req, res) => {
     if (
       !quiz.isPublic &&
       quiz.createdBy._id.toString() !== req.user._id.toString() &&
-      !(quiz.joinedUsers && quiz.joinedUsers.some(u => u.toString() === req.user._id.toString()))
+      !(quiz.joinedUsers && quiz.joinedUsers.some(u => u.toString() === req.user._id.toString())) &&
+      !(quiz.participants && quiz.participants.some(p => p.user.toString() === req.user._id.toString()))
     ) {
       return res.status(403).json({ message: 'Access to private quiz denied' });
     }
