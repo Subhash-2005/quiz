@@ -89,31 +89,36 @@ const createQuiz = async (req, res) => {
 const joinQuizByCode = async (req, res) => {
   try {
     const { code } = req.body;
-    const quiz = await Quiz.findOne({ accessCode: code, isActive: true });
+
+    // find by accessCode instead of code
+    const quiz = await Quiz.findOne({ accessCode: code });
 
     if (!quiz) {
-      return res.status(404).json({ message: 'Invalid access code or quiz not found' });
-    }
-    if (quiz.isPublic) {
-      return res.status(400).json({ message: 'This quiz is public. You can access it directly.' });
+      return res.status(404).json({ message: "Quiz not found" });
     }
 
-    // Add user to joinedUsers if not already present
-    if (!quiz.joinedUsers) quiz.joinedUsers = [];
-    if (!quiz.joinedUsers.some(u => u.toString() === req.user._id.toString())) {
-      quiz.joinedUsers.push(req.user._id);
-      await quiz.save();
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
     }
 
-    res.json({
-      message: 'Quiz access granted',
-      quiz
-    });
-  } catch (error) {
-    console.error('Join quiz error:', error);
-    res.status(500).json({ message: 'Server error joining quiz' });
+    const alreadyJoined = quiz.participants?.some(
+      (p) => p.user.toString() === req.user._id.toString()
+    );
+
+    if (alreadyJoined) {
+      return res.status(400).json({ message: "Already joined" });
+    }
+
+    quiz.participants.push({ user: req.user._id });
+    await quiz.save();
+
+    res.status(200).json({ message: "Joined successfully", quiz });
+  } catch (err) {
+    console.error("Join quiz error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Get all public quizzes with filtering
 const getPublicQuizzes = async (req, res) => {
