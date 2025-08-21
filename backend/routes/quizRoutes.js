@@ -58,6 +58,6 @@ router.delete('/:id', authMiddleware, deleteQuiz);
 router.post('/:id/rate', authMiddleware, rateQuiz);
 router.get('/:id/analytics', authMiddleware, getQuizAnalytics);
 router.patch('/:id/regenerate-code', authMiddleware, regenerateAccessCode);
-router.post('/join-by-code', authMiddleware, joinQuizByCode);
+router.post('/join-by-code',  joinQuizByCode);
 
 module.exports = router;
