@@ -8,15 +8,30 @@ const startAttempt = async (req, res) => {
   try {
     const { quizId } = req.params;
     
+    console.log('Start Attempt - Quiz ID:', quizId);
+    console.log('Start Attempt - User ID:', req.user?._id);
+    console.log('Start Attempt - User:', req.user?.username);
+    
     const quiz = await Quiz.findById(quizId);
     if (!quiz || !quiz.isActive) {
+      console.log('Start Attempt - Quiz not found or inactive');
       return res.status(404).json({ message: 'Quiz not found' });
     }
     
+    console.log('Start Attempt - Quiz found:', quiz.title);
+    console.log('Start Attempt - Quiz isPublic:', quiz.isPublic);
+    console.log('Start Attempt - Quiz createdBy:', quiz.createdBy);
+    console.log('Start Attempt - Quiz participants:', quiz.participants?.length || 0);
+    
     // Check if user can access private quiz
-    if (!quiz.isPublic && quiz.createdBy.toString() !== req.user._id.toString()) {
+    if (!quiz.isPublic && 
+        quiz.createdBy.toString() !== req.user._id.toString() &&
+        !quiz.participants.some(p => p.user.toString() === req.user._id.toString())) {
+      console.log('Start Attempt - Access denied to private quiz');
       return res.status(403).json({ message: 'Access to private quiz denied' });
     }
+    
+    console.log('Start Attempt - Access granted');
     
     // Check if there's an existing in-progress attempt
     const existingAttempt = await Attempt.findOne({
@@ -26,6 +41,7 @@ const startAttempt = async (req, res) => {
     });
     
     if (existingAttempt) {
+      console.log('Start Attempt - Existing attempt found');
       return res.json({
         message: 'Existing attempt found',
         attempt: existingAttempt
@@ -43,6 +59,8 @@ const startAttempt = async (req, res) => {
     });
     
     await attempt.save();
+    
+    console.log('Start Attempt - New attempt created:', attempt._id);
     
     res.status(201).json({
       message: 'Attempt started',
@@ -137,7 +155,8 @@ const submitAttempt = async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, {
       $inc: {
         'stats.totalQuizzesAttempted': 1,
-        'stats.totalPoints': score
+        'stats.totalPoints': score,
+        'stats.totalScore': score
       }
     });
     
@@ -269,3 +288,5 @@ module.exports = {
   getQuizLeaderboard,
   getGlobalLeaderboard
 };
+
+
