@@ -209,11 +209,18 @@ const getAttemptDetails = async (req, res) => {
   }
 };
 
-// Get leaderboard for a quiz
+// Get leaderboard for a specific quiz
 const getQuizLeaderboard = async (req, res) => {
   try {
     const { quizId } = req.params;
     const { limit = 10 } = req.query;
+    
+    console.log('Getting quiz leaderboard for quizId:', quizId);
+    
+    // Validate quizId format
+    if (!quizId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Invalid quiz ID format' });
+    }
     
     const leaderboard = await Attempt.find({
       quizId,
@@ -225,38 +232,59 @@ const getQuizLeaderboard = async (req, res) => {
     
     res.json(leaderboard);
   } catch (error) {
-    console.error('Get leaderboard error:', error);
-    res.status(500).json({ message: 'Server error fetching leaderboard' });
+    console.error('Get quiz leaderboard error:', error);
+    res.status(500).json({ message: 'Server error fetching quiz leaderboard' });
   }
 };
 
-// Get global leaderboard
+// Get global leaderboard based on user stats
 const getGlobalLeaderboard = async (req, res) => {
   try {
     const { limit = 20 } = req.query;
     
+    console.log('Getting global leaderboard');
+    
     const leaderboard = await User.aggregate([
+      // Match users who have stats
+      {
+        $match: {
+          'stats': { $exists: true }
+        }
+      },
+      // Project the fields we need
       {
         $project: {
           username: 1,
-          totalQuizzesCreated: '$stats.totalQuizzesCreated',
-          totalQuizzesAttempted: '$stats.totalQuizzesAttempted',
-          averageScore: '$stats.averageScore',
-          totalPoints: '$stats.totalPoints',
+          totalQuizzesCreated: { $ifNull: ['$stats.totalQuizzesCreated', 0] },
+          totalQuizzesAttempted: { $ifNull: ['$stats.totalQuizzesAttempted', 0] },
+          averageScore: { $ifNull: ['$stats.averageScore', 0] },
+          totalPoints: { $ifNull: ['$stats.totalPoints', 0] },
           leaderboardScore: {
             $add: [
-              { $multiply: ['$stats.totalQuizzesCreated', 5] },
-              { $multiply: ['$stats.totalQuizzesAttempted', 2] },
-              { $multiply: ['$stats.averageScore', 0.1] },
-              { $multiply: ['$stats.totalPoints', 0.01] }
+              { $multiply: [{ $ifNull: ['$stats.totalQuizzesCreated', 0] }, 5] },
+              { $multiply: [{ $ifNull: ['$stats.totalQuizzesAttempted', 0] }, 2] },
+              { $multiply: [{ $ifNull: ['$stats.averageScore', 0] }, 0.1] },
+              { $multiply: [{ $ifNull: ['$stats.totalPoints', 0] }, 0.01] }
             ]
           }
         }
       },
+      // Filter out users with no activity
+      {
+        $match: {
+          $or: [
+            { totalQuizzesCreated: { $gt: 0 } },
+            { totalQuizzesAttempted: { $gt: 0 } }
+          ]
+        }
+      },
+      // Sort by leaderboard score
       { $sort: { leaderboardScore: -1 } },
+      // Limit results
       { $limit: parseInt(limit) }
     ]);
     
+    console.log(`Found ${leaderboard.length} users for global leaderboard`);
     res.json(leaderboard);
   } catch (error) {
     console.error('Get global leaderboard error:', error);
