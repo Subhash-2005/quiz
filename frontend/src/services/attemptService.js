@@ -17,7 +17,12 @@ api.interceptors.request.use((config) => {
 
 export const attemptService = {
   startAttempt: async (quizId) => {
+    console.log('AttemptService - Starting attempt for quiz:', quizId);
+    const token = localStorage.getItem('token');
+    console.log('AttemptService - Token available:', token ? 'Yes' : 'No');
+    
     const response = await api.post(`/attempt/${quizId}/start`);
+    console.log('AttemptService - Start attempt response:', response.data);
     return response.data;
   },
 

@@ -19,8 +19,10 @@ export const AuthProvider = ({ children }) => {
         .then(user => {
           setCurrentUser(user);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Error loading user profile:', error);
           localStorage.removeItem('token');
+          setCurrentUser(null);
         })
         .finally(() => {
           setLoading(false);
@@ -71,3 +73,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
