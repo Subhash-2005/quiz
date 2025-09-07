@@ -11,7 +11,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import CreateQuiz from './pages/CreateQuiz';
 import AttemptQuiz from './pages/AttemptQuiz';
-import Profile from './pages/Profile';
+import Profile from './pages/Profile_with_quiz_results.jsx';
 import AdminDashboard from './pages/AdminDashboard';
 import JoinQuiz from './pages/JoinQuiz';
 

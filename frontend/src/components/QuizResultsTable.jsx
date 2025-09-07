@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { quizService } from '../services/quizService';
+import { quizService } from '../services/quizService_with_results.js';
 import toast from 'react-hot-toast';
 
 const QuizResultsTable = ({ quizId }) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { quizService } from '../services/quizService';
+import { quizService } from '../services/quizService_with_results.js';
 import { attemptService } from '../services/attemptService';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';

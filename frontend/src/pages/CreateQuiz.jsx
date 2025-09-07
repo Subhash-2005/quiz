@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { quizService } from '../services/quizService';
+import { quizService } from '../services/quizService_with_results.js';
 import toast from 'react-hot-toast';
 
 const CreateQuiz = () => {

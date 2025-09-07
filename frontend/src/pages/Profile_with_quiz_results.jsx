@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { quizService } from '../services/quizService';
+import { quizService } from '../services/quizService_with_results.js';
 import { attemptService } from '../services/attemptService';
 import toast from 'react-hot-toast';
 import AnalyticsChart from '../components/AnalyticsChart';

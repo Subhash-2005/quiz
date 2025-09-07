@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { quizService } from '../services/quizService';
+import { quizService } from '../services/quizService_with_results.js';
 import QuizCard from '../components/QuizCard';
 import Leaderboard from '../components/Leaderboard';
 
