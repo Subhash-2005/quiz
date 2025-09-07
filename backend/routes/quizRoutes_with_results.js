@@ -13,7 +13,7 @@ const {
   joinQuizByCode,
   getQuizResults, // New import
   regenerateAccessCode
-} = require('../controllers/quizController');
+} = require('../controllers/quizController_with_results.js');
 
 // Public routes
 router.get('/public', getPublicQuizzes);
