@@ -2,94 +2,45 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Create axios instance with better configuration
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 30000, // 30 second timeout
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Add token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-// Response interceptor for better error handling
+// Retry logic for failed requests
+const retryRequest = async (fn, retries = 2) => {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries > 0 && error.response?.status >= 500) {
+      console.log(`Retrying request... ${retries} attempts left`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return retryRequest(fn, retries - 1);
+    }
+    throw error;
+  }
+};
+
+// Add response interceptor for better error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle network errors
-    if (!error.response) {
-      console.error('Network error:', error.message);
-      throw new Error('Network connection failed. Please check your internet connection.');
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
-
-    // Handle specific HTTP status codes
-    const { status, data } = error.response;
-    
-    switch (status) {
-      case 401:
-        // Don't auto-redirect for quiz service, let the auth context handle it
-        throw new Error(data?.message || 'Authentication required. Please log in.');
-      
-      case 403:
-        throw new Error(data?.message || 'Access denied. You may need to join this quiz first.');
-      
-      case 404:
-        throw new Error(data?.message || 'Quiz not found.');
-      
-      case 409:
-        throw new Error(data?.message || 'A conflict occurred.');
-      
-      case 422:
-        throw new Error(data?.message || 'Invalid quiz data provided.');
-      
-      case 429:
-        throw new Error('Too many requests. Please wait a moment and try again.');
-      
-      case 500:
-        throw new Error('Server error. Please try again later.');
-      
-      case 502:
-      case 503:
-      case 504:
-        throw new Error('Service temporarily unavailable. Please try again later.');
-      
-      default:
-        throw new Error(data?.message || `Request failed with status ${status}`);
-    }
+    return Promise.reject(error);
   }
 );
-
-// Retry function for failed requests
-const retryRequest = async (requestFn, maxRetries = 3, delay = 1000) => {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await requestFn();
-    } catch (error) {
-      if (i === maxRetries - 1) throw error;
-      
-      // Don't retry on client errors (4xx)
-      if (error.response && error.response.status >= 400 && error.response.status < 500) {
-        throw error;
-      }
-      
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
-    }
-  }
-};
 
 export const quizService = {
   createQuiz: async (quizData) => {
@@ -164,19 +115,27 @@ export const quizService = {
     return retryRequest(async () => {
       const response = await api.get('/quiz/leaderboard/global');
       return response.data;
-    }, 2); // Fewer retries for leaderboard
+    });
   },
 
   getQuizLeaderboard: async (id) => {
     return retryRequest(async () => {
       const response = await api.get(`/quiz/${id}/leaderboard`);
       return response.data;
-    }, 2); // Fewer retries for leaderboard
+    });
   },
 
   regenerateAccessCode: async (id) => {
     return retryRequest(async () => {
       const response = await api.patch(`/quiz/${id}/regenerate-code`);
+      return response.data;
+    });
+  },
+
+  // New function to get quiz results for quiz creators
+  getQuizResults: async (id) => {
+    return retryRequest(async () => {
+      const response = await api.get(`/quiz/${id}/results`);
       return response.data;
     });
   }
