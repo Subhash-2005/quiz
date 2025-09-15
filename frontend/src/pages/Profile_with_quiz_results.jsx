@@ -287,7 +287,7 @@ setAttemptHistory(Array.isArray(historyData) ? historyData : []);
         </p>
       ) : (
         <div style={{ display: 'grid', gap: '1rem' }}>
-          {attemptHistory.map((attempt) => (
+          {(Array.isArray(attemptHistory) ? attemptHistory : []).map((attempt) => (
             <div
               key={attempt._id}
               style={{
@@ -363,7 +363,7 @@ setAttemptHistory(Array.isArray(historyData) ? historyData : []);
         return (
           <div>
             <h3 style={{ color: '#F8F9FA', marginBottom: '1rem' }}>Performance Analytics</h3>
-            <AnalyticsChart attempts={attemptHistory} />
+            <AnalyticsChart attempts={Array.isArray(attemptHistory) ? attemptHistory : []} />
           </div>
         );
 
