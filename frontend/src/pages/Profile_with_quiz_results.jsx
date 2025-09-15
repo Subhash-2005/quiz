@@ -45,13 +45,13 @@ const Profile = () => {
           case 'questHistory':
             if (attemptHistory.length === 0) {
               const historyData = await attemptService.getAttemptHistory();
-              setAttemptHistory(historyData || []);
+setAttemptHistory(Array.isArray(historyData) ? historyData : []);
             }
             break;
           case 'analytics':
             if (attemptHistory.length === 0) {
               const historyData = await attemptService.getAttemptHistory();
-              setAttemptHistory(historyData || []);
+setAttemptHistory(Array.isArray(historyData) ? historyData : []);
             }
             break;
           default:
@@ -278,50 +278,86 @@ const Profile = () => {
         );
 
       case 'questHistory':
-        return (
-          <div>
-            <h3 style={{ color: '#F8F9FA', marginBottom: '1rem' }}>Quest History</h3>
-            {attemptHistory.length === 0 ? (
-              <p style={{ color: '#A1A1AA', textAlign: 'center', padding: '2rem' }}>
-                You haven't attempted any quests yet.
-              </p>
-            ) : (
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {attemptHistory.map((attempt) => (
-                  <div key={attempt._id} style={{
-                    background: 'rgba(108, 99, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: '1.5rem',
-                    border: '1px solid #6C63FF',
-                    boxShadow: '0 0 10px rgba(108, 99, 255, 0.3)'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <h4 style={{ color: '#F8F9FA', marginBottom: '0.5rem' }}>{attempt.quizId?.title || 'Unknown Quiz'}</h4>
-                        <p style={{ color: '#A1A1AA', fontSize: '0.875rem' }}>
-                          Completed: {new Date(attempt.completedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <p style={{ 
-                          color: attempt.percentage >= 80 ? '#00F5D4' : attempt.percentage >= 60 ? '#FFD700' : '#FF6B6B',
-                          fontSize: '1.5rem',
-                          fontWeight: 'bold',
-                          marginBottom: '0.25rem'
-                        }}>
-                          {attempt.percentage?.toFixed(1) || 0}%
-                        </p>
-                        <p style={{ color: '#A1A1AA', fontSize: '0.875rem' }}>
-                          {attempt.score || 0}/{attempt.totalPoints || 0} points
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+  return (
+    <div>
+      <h3 style={{ color: '#F8F9FA', marginBottom: '1rem' }}>Quest History</h3>
+      {!Array.isArray(attemptHistory) || attemptHistory.length === 0 ? (
+        <p style={{ color: '#A1A1AA', textAlign: 'center', padding: '2rem' }}>
+          You haven't attempted any quests yet.
+        </p>
+      ) : (
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          {attemptHistory.map((attempt) => (
+            <div
+              key={attempt._id}
+              style={{
+                background: 'rgba(108, 99, 255, 0.1)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                border: '1px solid #6C63FF',
+                boxShadow: '0 0 10px rgba(108, 99, 255, 0.3)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <h4
+                    style={{
+                      color: '#F8F9FA',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    {attempt.quizId?.title || 'Unknown Quiz'}
+                  </h4>
+                  <p
+                    style={{
+                      color: '#A1A1AA',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    Completed:{' '}
+                    {attempt.completedAt
+                      ? new Date(attempt.completedAt).toLocaleDateString()
+                      : 'N/A'}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p
+                    style={{
+                      color:
+                        attempt.percentage >= 80
+                          ? '#00F5D4'
+                          : attempt.percentage >= 60
+                          ? '#FFD700'
+                          : '#FF6B6B',
+                      fontSize: '1.5rem',
+                      fontWeight: 'bold',
+                      marginBottom: '0.25rem',
+                    }}
+                  >
+                    {attempt.percentage?.toFixed(1) || 0}%
+                  </p>
+                  <p
+                    style={{
+                      color: '#A1A1AA',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    {attempt.score || 0}/{attempt.totalPoints || 0} points
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
-        );
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
       case 'analytics':
         return (
