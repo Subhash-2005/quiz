@@ -2,21 +2,32 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
+// Generate JWT token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
-    expiresIn: '7d'
-  });
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET || 'fallback_secret',
+    { expiresIn: '7d' }
+  );
 };
 
-// Register new user
+// ==========================
+// REGISTER USER
+// ==========================
 const register = async (req, res) => {
+  console.log("REGISTER BODY:", req.body); // 🔍 DEBUG
+
   try {
+    // Validate request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("VALIDATION ERRORS:", errors.array()); // 🔍 DEBUG
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { username, email, password } = req.body;
+
+    console.log("CHECKING USER:", username, email); // 🔍 DEBUG
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -24,6 +35,7 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
+      console.log("USER ALREADY EXISTS"); // 🔍 DEBUG
       return res.status(400).json({
         message: 'User with this email or username already exists'
       });
@@ -36,7 +48,9 @@ const register = async (req, res) => {
       password
     });
 
+    console.log("ABOUT TO SAVE USER"); // 🔍 DEBUG
     await user.save();
+    console.log("USER SAVED SUCCESSFULLY:", user._id); // 🔍 DEBUG
 
     // Generate token
     const token = generateToken(user._id);
@@ -48,15 +62,22 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+    res.status(500).json({
+      message: 'Server error during registration'
+    });
   }
 };
 
-// Login user
+// ==========================
+// LOGIN USER
+// ==========================
 const login = async (req, res) => {
+  console.log("LOGIN BODY:", req.body); // 🔍 DEBUG
+
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("LOGIN VALIDATION ERRORS:", errors.array()); // 🔍 DEBUG
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -84,49 +105,56 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({
+      message: 'Server error during login'
+    });
   }
 };
 
-// Get current user profile
+// ==========================
+// GET PROFILE
+// ==========================
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .populate({
-        path: 'stats.totalQuizzesCreated',
-        select: 'title topic difficulty totalAttempts'
-      });
-    
+    const user = await User.findById(req.user._id);
     res.json(user);
   } catch (error) {
     console.error('Get profile error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+      message: 'Server error'
+    });
   }
 };
 
-// Update user profile
+// ==========================
+// UPDATE PROFILE
+// ==========================
 const updateProfile = async (req, res) => {
   try {
     const { bio, favoriteTopics, difficultyPreference } = req.body;
-    
+
     const updateData = {};
     if (bio !== undefined) updateData['profile.bio'] = bio;
-    if (favoriteTopics !== undefined) updateData['preferences.favoriteTopics'] = favoriteTopics;
-    if (difficultyPreference !== undefined) updateData['preferences.difficultyPreference'] = difficultyPreference;
-    
+    if (favoriteTopics !== undefined)
+      updateData['preferences.favoriteTopics'] = favoriteTopics;
+    if (difficultyPreference !== undefined)
+      updateData['preferences.difficultyPreference'] = difficultyPreference;
+
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { $set: updateData },
       { new: true, runValidators: true }
     );
-    
+
     res.json({
       message: 'Profile updated successfully',
       user
     });
   } catch (error) {
     console.error('Update profile error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+      message: 'Server error'
+    });
   }
 };
 
