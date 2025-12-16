@@ -1,38 +1,38 @@
-# 🧠 Quiz App – Full-Stack Online Quiz Platform
+# Quiz App – Full-Stack Online Quiz Platform
 
 A full-stack Quiz Application that allows users to create, attempt, and analyze quizzes with secure authentication, private access codes, leaderboards, and performance analytics.
 
-🔗 **Live Demo:** https://quiz-frontend-0g4l.onrender.com/  
-🔗 **GitHub Repository:** https://github.com/Subhash-2005/quiz  
+**Live Demo:** https://quiz-frontend-0g4l.onrender.com/  
+**GitHub Repository:** https://github.com/Subhash-2005/quiz  
 
 ---
 
-## 🚀 Features
+## Features
 
-### 🔐 User Authentication & Authorization
+###  User Authentication & Authorization
 - User registration and login
 - JWT-based token authentication
 - Protected routes using authentication middleware
 
-### 📝 Quiz Management
+###  Quiz Management
 - Create quizzes with title, description, difficulty, time limit, and questions
 - Supports public and private quizzes
 - Private quizzes secured using unique access codes
 - Edit and delete quizzes by quiz creators
 
-### 🎯 Quiz Attempting & Scoring
+###  Quiz Attempting & Scoring
 - Browse and attempt public quizzes
 - Join private quizzes using access codes
 - Automatic score calculation
 - Attempt history tracking
 
-### 🏆 Leaderboards & Analytics
+###  Leaderboards & Analytics
 - Global leaderboard based on user performance
 - Quiz-specific leaderboards
 - Quiz creators can view a ranked table of participants with scores in descending order
 - User profile with statistics and analytics
 
-### ⚙️ Robust Backend & Performance
+###  Robust Backend & Performance
 - RESTful API design using Express.js
 - MongoDB schema design with proper relations
 - Optimized queries for leaderboards
@@ -41,7 +41,7 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - React.js
@@ -64,7 +64,7 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ### Frontend – client/
 
@@ -136,7 +136,7 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-## 🔑 Key Implementation Highlights
+##  Key Implementation Highlights
 
 - JWT authentication with middleware protection
 - Creator-only access for viewing participant scores
@@ -146,7 +146,7 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-## 📌 How It Works (High-Level)
+##  How It Works (High-Level)
 
 1. Users register and log in to receive a JWT token
 2. Authenticated users can create quizzes (public/private)
@@ -157,7 +157,7 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-## 🌱 Future Enhancements
+##  Future Enhancements
 
 - AI-generated quiz questions
 - Adaptive difficulty levels
@@ -167,7 +167,7 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 **Subhash Talluri**  
 - Full Stack Developer  
@@ -176,4 +176,4 @@ A full-stack Quiz Application that allows users to create, attempt, and analyze 
 
 ---
 
-⭐ If you like this project, feel free to star the repository! 
+ If you like this project, feel free to star the repository! 
