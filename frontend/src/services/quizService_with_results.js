@@ -29,12 +29,11 @@ const retryRequest = async (fn, retries = 2) => {
   }
 };
 
-// Add response interceptor for better error handling
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
@@ -111,16 +110,17 @@ export const quizService = {
     });
   },
 
+  // ✅ FIXED — Correct leaderboard routes
   getGlobalLeaderboard: async () => {
     return retryRequest(async () => {
-      const response = await api.get('/quiz/leaderboard/global');
+      const response = await api.get('/attempt/leaderboard/global');
       return response.data;
     });
   },
 
   getQuizLeaderboard: async (id) => {
     return retryRequest(async () => {
-      const response = await api.get(`/quiz/${id}/leaderboard`);
+      const response = await api.get(`/attempt/leaderboard/${id}`);
       return response.data;
     });
   },
@@ -132,7 +132,6 @@ export const quizService = {
     });
   },
 
-  // New function to get quiz results for quiz creators
   getQuizResults: async (id) => {
     return retryRequest(async () => {
       const response = await api.get(`/quiz/${id}/results`);
@@ -140,4 +139,3 @@ export const quizService = {
     });
   }
 };
-

@@ -14,45 +14,35 @@ const generateToken = (id) => {
 // ==========================
 // REGISTER USER
 // ==========================
+// ==========================
+// REGISTER USER (EMAIL UNIQUE ONLY)
+// ==========================
 const register = async (req, res) => {
-  console.log("REGISTER BODY:", req.body); // 🔍 DEBUG
-
   try {
-    // Validate request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("VALIDATION ERRORS:", errors.array()); // 🔍 DEBUG
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { username, email, password } = req.body;
 
-    console.log("CHECKING USER:", username, email); // 🔍 DEBUG
-
-    // Check if user already exists
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
-    });
+    // Check ONLY email
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      console.log("USER ALREADY EXISTS"); // 🔍 DEBUG
       return res.status(400).json({
-        message: 'User with this email or username already exists'
+        message: 'User with this email already exists'
       });
     }
 
-    // Create new user
     const user = new User({
-      username,
+      username,   // can repeat
       email,
       password
     });
 
-    console.log("ABOUT TO SAVE USER"); // 🔍 DEBUG
     await user.save();
-    console.log("USER SAVED SUCCESSFULLY:", user._id); // 🔍 DEBUG
 
-    // Generate token
     const token = generateToken(user._id);
 
     res.status(201).json({
@@ -60,6 +50,7 @@ const register = async (req, res) => {
       token,
       user
     });
+
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({
