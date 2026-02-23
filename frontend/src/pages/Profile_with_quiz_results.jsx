@@ -45,13 +45,13 @@ const Profile = () => {
           case 'questHistory':
             if (attemptHistory.length === 0) {
               const historyData = await attemptService.getAttemptHistory();
-setAttemptHistory(Array.isArray(historyData) ? historyData : []);
+              setAttemptHistory(historyData?.attempts || []);
             }
             break;
           case 'analytics':
             if (attemptHistory.length === 0) {
               const historyData = await attemptService.getAttemptHistory();
-setAttemptHistory(Array.isArray(historyData) ? historyData : []);
+              setAttemptHistory(historyData?.attempts || []);
             }
             break;
           default:

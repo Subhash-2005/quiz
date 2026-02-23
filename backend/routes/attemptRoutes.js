@@ -13,8 +13,8 @@ const router = express.Router();
 
 // IMPORTANT: More specific routes must come BEFORE parameterized routes
 // Global leaderboard route MUST come before the parameterized route
-router.get('/leaderboard/global', getGlobalLeaderboard);
-router.get('/leaderboard/:quizId', getQuizLeaderboard);
+router.get('/leaderboard/global',authMiddleware, getGlobalLeaderboard);
+router.get('/leaderboard/:quizId', authMiddleware, getQuizLeaderboard);
 
 // Other routes
 router.post('/:quizId/start', authMiddleware, startAttempt);
