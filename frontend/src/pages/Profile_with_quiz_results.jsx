@@ -363,7 +363,13 @@ const Profile = () => {
         return (
           <div>
             <h3 style={{ color: '#F8F9FA', marginBottom: '1rem' }}>Performance Analytics</h3>
-            <AnalyticsChart attempts={Array.isArray(attemptHistory) ? attemptHistory : []} />
+            <AnalyticsChart 
+              data={(attemptHistory || []).map((attempt) => ({
+                label: new Date(attempt.completedAt).toLocaleDateString(),
+                value: attempt.percentage || 0
+              }))}
+              title="Performance Over Time"
+            />
           </div>
         );
 

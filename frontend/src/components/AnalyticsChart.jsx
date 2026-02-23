@@ -10,8 +10,11 @@ const AnalyticsChart = ({ data, title, type = 'bar' }) => {
     { label: 'Jun', value: 55 },
   ];
 
-  const chartData = data || mockData;
-  const maxValue = Math.max(...chartData.map(item => item.value));
+  const chartData = Array.isArray(data) && data.length > 0 ? data : [];
+  if (chartData.length === 0) {
+    return <p>No analytics data available.</p>;
+  }
+  const maxValue = Math.max(...chartData.map(item => item.value),1);
 
   return (
     <div style={{
@@ -70,10 +73,8 @@ const AnalyticsChart = ({ data, title, type = 'bar' }) => {
                 transition: 'all 0.3s ease',
                 boxShadow: '0 0 10px rgba(0, 245, 212, 0.5)',
                 position: 'relative',
-                ':hover': {
-                  boxShadow: '0 0 15px rgba(255, 215, 0, 0.8)',
-                  transform: 'scale(1.05)'
-                }
+                boxShadow: '0 0 15px rgba(255, 215, 0, 0.8)',
+                transform: 'scale(1.05)'
               }}
             >
               <div style={{
